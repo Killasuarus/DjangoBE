@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Main</title>
+    <style>
+    table{
+      border: 1px solid black;
+    }
+    td{
+      border: 1px solid black;
+    }
+    div h1{
+      display: inline-block;
+    }
+    div form{
+      display: inline-block;
+      margin-left: 500px;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>Success! Welcome, {{request.session.name}}!</h1>
+      <form action='{% url "users:logout" %}' method="post">
+        {% csrf_token %}
+        <input type="submit" value="log out">
+      </form>
+    </div>
+    <div id="main">
+      <h3>Your wish list:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Added By</th>
+            <th>Date Added</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+            {% if users in item.wish.all or item.user.id == request.session.user_id %}
+              <tr>
+                <td><a href='{% url "main:inspect" id=item.id %}'>{{item.item}}</a></td>
+                <td>{{item.user.name}}</td>
+                <td>{{item.created_at}}</td>
+                <td>{% if item.user.id == request.session.user_id %}<a href='{% url "main:delete" id=item.id%}'>Delete</a>{% endif %}{% if item.user.id != request.session.user_id %}<a href='{% url "main:remove" id=item.id%}'>Remove</a>{% endif %}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+      <h3>Other User's Wish List:</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Added By</th>
+            <th>Date Added</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+
+              {% if not users in item.wish.all and item.user.id != request.session.user_id%}
+                <tr>
+                  <td><a href='{% url "main:inspect" id=item.id %}'>{{item.item}}</a></td>
+                  <td>{{item.user.name}}</td>
+                  <td>{{item.created_at}}</td>
+                  <td><a href='{% url "main:additem" id=item.id %}'>Add To Your Wishlist</a></td>
+                </tr>
+              {% endif %}
+
+          {% endfor %}
+        </tbody>
+      </table>
+      <div id="footer">
+        <a href="{% url 'main:wishitems' %}">Add Item</a>
+  </body>
+</html>
